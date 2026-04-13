@@ -79,6 +79,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Health Check for Render/Monitoring
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'UP', timestamp: new Date() });
+});
+
 // Make io accessible to our router
 app.set('socketio', io);
 
