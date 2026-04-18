@@ -26,8 +26,11 @@ pool.connect()
 module.exports = {
   query: (text, params) => pool.query(text, params),
   execute: async (text, params) => {
-    // Wrapper to mimic mysql2 return structure [rows, fields]
-    const result = await pool.query(text, params);
+    // Convert MySQL '?' placeholders to PostgreSQL '$1, $2...'
+    let index = 1;
+    const pgText = text.replace(/\?/g, () => `$${index++}`);
+    const result = await pool.query(pgText, params);
+    // Return [rows, result] to maintain partial compatibility with mysql2
     return [result.rows, result];
   }
 };
