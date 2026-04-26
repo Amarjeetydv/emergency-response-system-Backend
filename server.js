@@ -21,9 +21,17 @@ const Message = require('./models/messageModel');
 
 const app = express();
 const server = http.createServer(app);
+
+const allowedOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const corsOrigin = allowedOrigins.length ? allowedOrigins : '*';
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "*",
+    origin: corsOrigin,
     methods: ["GET", "POST", "PUT"]
   }
 });
@@ -56,7 +64,7 @@ if (process.env.REDIS_URL) {
 }
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
